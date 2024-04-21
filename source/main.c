@@ -9,7 +9,7 @@
 #include <wafel/ios/svc.h>
 #include <wafel/trampoline.h>
 
-void (*crypto_printf)(const char*, ...) = 0x040153d0;
+void (*crypto_printf)(const char*, ...) = (void*)0x040153d0;
 
 u32 getKeyHook(int *key, int *size, u32 keyid, int r3, int (*crypto_get_key)(int*, int*, u32), u32 lr){
     debug_printf("GetKeyHook(%p,%p,%u), chain: %p, lr: %p\n", key, size, keyid, crypto_get_key, lr);
