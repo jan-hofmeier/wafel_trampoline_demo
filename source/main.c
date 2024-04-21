@@ -31,6 +31,31 @@ void print_end(trampoline_state *state){
     crypto_printf("end hook crypto printf\n");
 }
 
+int mount_wrapper(char* dev, char *dir, char *mount_point, void *owner, int (*orgfunc)(char*, char*, char*, void*)){
+    debug_printf("Calling MCP_MountWithSubdir(%s, %s, %s, %p) at %p\n", dev, dir, mount_point, owner, orgfunc);
+    int ret = orgfunc(dev, dir, mount_point, owner);
+    debug_printf("MCP_MountWithSubdir returned %X\n", ret);
+    return ret;
+}
+
+void install_arm_trampolines(void){
+    // the original overwritten instruction will be added to the end of the trampoline automatically
+    trampoline_hook_before(0x04002d18, print_end);
+    // it is possible to hook the same location multiple times
+    // the old target is extracted from the overwritten bl instruction!
+    trampoline_hook_before(0x04002d18, print_state);
+    trampoline_hook_before(0x04002d18, print_start);
+
+    trampoline_hook_before(0x04002d80, print_state);
+    // also blreplace can chain existing hooks
+    trampoline_blreplace(0x04002d80 ,getKeyHook);
+
+    trampoline_hook_before(0x04002d88, print_state);
+}
+
+void install_thumb_trampolines(void){
+    trampoline_t_blreplace(0x05027d54, mount_wrapper);
+}
 
 // This fn runs before everything else in kernel mode.
 // It should be used to do extremely early patches
@@ -44,18 +69,8 @@ void kern_main()
 
     debug_printf("init_linking symbol at: %08x\n", wafel_find_symbol("init_linking"));
 
-        // the original overwritten instruction will be added to the end of the trampoline automatically
-        trampoline_hook_before(0x04002d18, print_end);
-        // it is possible to hook the same location multiple times
-        // the old target is extracted from the overwritten bl instruction!
-        trampoline_hook_before(0x04002d18, print_state);
-        trampoline_hook_before(0x04002d18, print_start);
-
-        trampoline_hook_before(0x04002d80, print_state);
-        // also blreplace can chain existing hooks
-        trampoline_blreplace(0x04002d80 ,getKeyHook);
-
-        trampoline_hook_before(0x04002d88, print_state);
+    install_arm_trampolines();
+    install_thumb_trampolines();
 }
 
 // This fn runs before MCP's main thread, and can be used

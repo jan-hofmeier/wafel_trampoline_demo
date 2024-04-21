@@ -1,6 +1,6 @@
 # wafel_payloader
 
-This plugin installs a few different trampolines to call C functions to influence function calls inside IOSU, to print and influence the register state at almost arbitrary locations and to just run something at a specific point int MCP startup
+This plugin installs a few different trampolines to call C functions to influence function calls inside IOSU, to print and influence the register state at almost arbitrary locations and to just run something at a specific point in mcpThreadEntry for example
 
 ## How to use
 
