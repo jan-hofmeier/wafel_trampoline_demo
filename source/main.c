@@ -38,6 +38,22 @@ int mount_wrapper(char* dev, char *dir, char *mount_point, void *owner, int (*or
     return ret;
 }
 
+int dev_wait_wrapper(char* dev, u32 timeout, int r2, int r3, int (*orgfunc)(char*, u32)){
+    timeout = timeout * 2;
+    debug_printf("Increase timout for %s to %u\n", dev, timeout);
+    return orgfunc(dev, timeout);
+}
+
+void print_thumb_state(trampoline_t_state *state){
+    debug_printf("THUMB state %p: r0: %p, r1: %p, r2: %p, r3: %p, r4: %p, r5: %p, r6: %p, r7: %p, lr: %p\n", state,
+            state->r[0],state->r[1],state->r[2],state->r[3],state->r[4],state->r[5],state->r[6],state->r[7], state->lr);
+}
+
+void after_mlc_hook(trampoline_t_state *state){
+    debug_printf("HOOK: MLC MOUNTED!!!!\n");
+}
+
+
 void install_arm_trampolines(void){
     // the original overwritten instruction will be added to the end of the trampoline automatically
     trampoline_hook_before(0x04002d18, print_end);
@@ -54,7 +70,10 @@ void install_arm_trampolines(void){
 }
 
 void install_thumb_trampolines(void){
+    trampoline_t_blreplace(0x05027d18, dev_wait_wrapper);
     trampoline_t_blreplace(0x05027d54, mount_wrapper);
+    trampoline_t_hook_before(0x05027d58, print_thumb_state);
+    trampoline_t_hook_before(0x05027d58, after_mlc_hook);
 }
 
 // This fn runs before everything else in kernel mode.
