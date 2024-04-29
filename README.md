@@ -1,10 +1,10 @@
-# wafel_payloader
+# wafel_trampoline_demo
 
 This plugin installs a few different trampolines to call C functions to influence function calls inside IOSU, to print and influence the register state at almost arbitrary locations and to just run something at a specific point in mcpThreadEntry for example
 
 ## How to use
 
-- Copy the `wafel_trampoline.ipx` to `/wiiu/ios_plugins`
+- Copy the `wafel_trampoline_demo.ipx` to `/wiiu/ios_plugins`
 
 ## Building
 
