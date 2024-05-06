@@ -11,7 +11,7 @@
 
 //const char *mydev = "/dev/mlcorig";
 const char *mydev = "/dev/usb01";
-const char *mlc_alt_mount = "/vol/storage_mlc02";
+const char *mlc_alt_mount = "/vol/storage_mlc01/sysmlc";
 
 void print_state(trampoline_state *state){
     debug_printf("state %p: r0: %p, r1: %p, r2: %p, r3: %p, r4: %p, r5: %p, r6: %p, r7: %p, r8: %p, r9: %p, r10: %p, r11: %p, r12: %p, lr: %p\n", state,
@@ -19,14 +19,13 @@ void print_state(trampoline_state *state){
 }
 
 int mlc_mount_hook(const char* dev, const char *dir, const char *mount_point, void *owner, int (*orgfunc)(const char*, const char*, const char*, void*)){
-    debug_printf("Calling MCP_MountWithSubdir(%s, %s, %s, %p) at %p\n", dev, dir, mlc_alt_mount, owner, orgfunc);
-    int ret = orgfunc(dev, dir, mlc_alt_mount, owner);
+    debug_printf("Calling MCP_MountWithSubdir(%s, %s, %s, %p) at %p\n", mydev, dir, mount_point, owner, orgfunc);
+    int ret = orgfunc(mydev, dir, mount_point, owner);
     debug_printf("MCP_MountWithSubdir returned %X\n", ret);
 
-    dev = mydev;
-    debug_printf("Calling MCP_MountWithSubdir(%s, %s, %s, %p) at %p\n", dev, dir, mount_point, owner, orgfunc);
-    ret = orgfunc(dev, dir, mount_point, owner);
-    debug_printf("MCP_MountWithSubdir returned %X\n", ret);
+    debug_printf("Calling MCP_MountWithSubdir(%s, %s, %s, %p) at %p\n", dev, dir, mlc_alt_mount, owner, orgfunc);
+    int res = orgfunc(dev, dir, mlc_alt_mount, owner);
+    debug_printf("MCP_MountWithSubdir returned %X\n", res);
 
     return ret;
 }
