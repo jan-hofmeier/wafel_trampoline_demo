@@ -9,6 +9,7 @@
 #include <wafel/ios/svc.h>
 #include <wafel/trampoline.h>
 
+//const char *mydev = "/dev/mlcorig";
 const char *mydev = "/dev/usb01";
 const char *mlc_alt_mount = "/vol/storage_mlc02";
 
@@ -34,7 +35,7 @@ int wait_for_mlc_hook(const char* dev, u32 timeout, int r2, int r3, int (*orgfun
     int res = orgfunc(dev, timeout);
     debug_printf("Waiting for %s returned: %d\n", dev, res);
 
-    dev = "/dev/usb01";
+    dev = mydev;
     do{
         debug_printf("Waiting for %s...\n", dev);
         res = orgfunc(dev, timeout);
